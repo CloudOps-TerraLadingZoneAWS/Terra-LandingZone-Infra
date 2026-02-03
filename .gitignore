@@ -1,0 +1,21 @@
+# Terraform local state
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+
+# .tfvars files (Likely to contain secrets)
+*.tfvars
+*.tfvars.json
+
+# Terraform configuration directories
+.terraform/
+.terraform.lock.hcl
+
+# Logs
+*.log
+*.log.*
+
+# Editor config
+.vscode/
+.idea/
+.DS_Store

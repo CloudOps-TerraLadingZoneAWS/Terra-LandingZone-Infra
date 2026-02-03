@@ -27,8 +27,6 @@ Terra-LandingZone-Infra/
 │   ├── networking/
 │   │   ├── vpc/
 │   │   ├── transit-gateway/
-│   │   ├── subnets/
-│   │   └── attachments/
 │   ├── compute/
 │   │   ├── ec2/
 │   │   ├── asg/
