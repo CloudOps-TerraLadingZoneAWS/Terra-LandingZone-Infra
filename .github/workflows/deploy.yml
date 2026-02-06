@@ -18,7 +18,12 @@ on:
                 options:
                     - plan
                     - apply
+                    - destroy
                     - unlock
+            lock_id:
+                description: "ID de bloqueo (Solo para la opción unlock)"
+                required: false
+                type: string
 
 env:
     AWS_REGION: "us-east-1"
@@ -79,3 +84,8 @@ jobs:
               if: ${{ inputs.terraform_action == 'apply' }}
               working-directory: ${{ env.WORK_DIR }}
               run: terraform apply -auto-approve plan.tfplan
+
+            - name: Terraform Destroy
+              if: ${{ github.event.inputs.terraform_action == 'destroy' }}
+              working-directory: ${{ env.WORK_DIR }}
+              run: terraform destroy -auto-approve
