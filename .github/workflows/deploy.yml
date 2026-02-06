@@ -18,6 +18,7 @@ on:
                 options:
                     - plan
                     - apply
+                    - unlock
 
 env:
     AWS_REGION: "us-east-1"
@@ -59,11 +60,18 @@ jobs:
                     -backend-config="key=${{ env.WORK_DIR }}/terraform.tfstate" \
                     -backend-config="region=${{ env.AWS_REGION }}"
 
+            - name: Terraform Force Unlock
+              if: ${{ github.event.inputs.lock_id != '' }}
+              working-directory: ${{ env.WORK_DIR }}
+              run: terraform force-unlock -force ${{ github.event.inputs.lock_id }}
+
             - name: Terraform Validate
+              if: ${{ github.event.inputs.terraform_action != 'unlock' }}
               working-directory: ${{ env.WORK_DIR }}
               run: terraform validate
 
             - name: Terraform Plan
+              if: ${{ github.event.inputs.terraform_action != 'unlock' }}
               working-directory: ${{ env.WORK_DIR }}
               run: terraform plan -out=plan.tfplan
 
