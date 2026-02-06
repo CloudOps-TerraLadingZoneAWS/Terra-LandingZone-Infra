@@ -9,12 +9,6 @@ variable "project_name" {
 }
 
 
-variable "aws_profile" {
-  description = "Nombre del perfil a usar"
-  type        = string
-}
-
-
 variable "s3_state" {
   description = "Nombre del perfil a usar"
   type        = string
