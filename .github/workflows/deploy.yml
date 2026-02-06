@@ -1,28 +1,38 @@
 name: Deploy Terraform - OIDC
 
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - main
+    workflow_dispatch:
+        inputs:
+            target_account:
+                description: "Selecciona la cuenta a desplegar"
+                required: true
+                type: choice
+                options:
+                    - tooling
+                    - connectivity
+                    - production
+            terraform_action:
+                description: "Acción a ejecutar"
+                required: true
+                default: "plan"
+                type: choice
+                options:
+                    - plan
+                    - apply
 
 env:
     AWS_REGION: "us-east-1"
+    WORK_DIR: "accounts/${{ github.event.inputs.target_account }}"
 
 jobs:
     terraform:
-        name: Terraform on ${{ matrix.dir }} - Plan / Apply
+        name: TF ${{ inputs.terraform_action }} on ${{ inputs.target_account }}
         runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                dir:
-                    [
-                        accounts/tooling,
-                        accounts/connectivity,
-                        accounts/production,
-                    ]
+
+        permissions:
+            id-token: write
+            contents: read
+
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -39,18 +49,22 @@ jobs:
                   aws-region: ${{ env.AWS_REGION }}
 
             - name: Terraform init
-              working-directory: ${{ matrix.dir }}
-              run: terraform init -backend-config="bucket=${{ secrets.S3_STATE }}" -backend-config="key=${{ matrix.dir }}/terraform.tfstate" -backend-config="region=${{ env.AWS_REGION }}"
+              working-directory: ${{ env.WORK_DIR }}
+              run: |
+                  terraform init \
+                    -backend-config="bucket=${{ secrets.S3_STATE }}" \
+                    -backend-config="key=${{ env.WORK_DIR }}/terraform.tfstate" \
+                    -backend-config="region=${{ env.AWS_REGION }}"
 
             - name: Terraform Validate
-              working-directory: ${{ matrix.dir }}
+              working-directory: ${{ env.WORK_DIR }}
               run: terraform validate
 
             - name: Terraform Plan
-              working-directory: ${{ matrix.dir }}
+              working-directory: ${{ env.WORK_DIR }}
               run: terraform plan -out=plan.tfplan -var="s3_state=${{ secrets.S3_STATE }}"
 
             - name: Terraform Apply
-              if: github.ref == 'refs/heads/main'
-              working-directory: ${{ matrix.dir }}
+              if: ${{ inputs.terraform_action == 'apply' }}
+              working-directory: ${{ env.WORK_DIR }}
               run: terraform apply -auto-approve plan.tfplan
