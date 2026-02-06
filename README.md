@@ -6,6 +6,9 @@ Terra-LandingZone-Infra/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml
+├── diagrams/
+│   ├── arquitectura.drawio
+│   └── arquitectura.png
 ├── accounts/
 │   ├── tooling/
 │   │   ├── main.tf
@@ -23,19 +26,45 @@ Terra-LandingZone-Infra/
 │       ├── variables.tf
 │       ├── outputs.tf
 │       └── backend.tf
-├── modules/
-│   ├── networking/
-│   │   ├── vpc/
-│   │   ├── transit-gateway/
-│   ├── compute/
-│   │   ├── ec2/
-│   │   ├── asg/
-│   │   └── alb/
-│   ├── database/
-│   │   ├── rds/
-│   │   └── documentdb/
-│   └── storage/
-│   │   ├── s3/
-│   │   └── cdn/
-└── provider.tf
+└── modules/
+    ├── networking/
+    │   ├── vpc/
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   └── transit-gateway/
+    │       ├── main.tf
+    │       ├── outputs.tf
+    │       └── variables.tf
+    ├── compute/
+    │   ├── ec2/
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   ├── asg/
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   └── alb/
+    │       ├── main.tf
+    │       ├── outputs.tf
+    │       └── variables.tf
+    ├── database/
+    │   ├── rds/
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   └── variables.tf
+    │   └── documentdb/
+    │       ├── main.tf
+    │       ├── outputs.tf
+    │       └── variables.tf
+    └── storage/
+        ├── s3/
+        │   ├── main.tf
+        │   ├── outputs.tf
+        │   └── variables.tf
+        └── cdn/
+            ├── main.tf
+            ├── outputs.tf
+            └── variables.tf
 ```
