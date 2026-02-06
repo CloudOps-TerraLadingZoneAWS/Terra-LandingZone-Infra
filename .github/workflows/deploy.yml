@@ -1,0 +1,56 @@
+name: Deploy Terraform - OIDC
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+
+env:
+    AWS_REGION: "us-east-1"
+
+jobs:
+    terraform:
+        name: Terraform on ${{ matrix.dir }} - Plan / Apply
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                dir:
+                    [
+                        accounts/tooling,
+                        accounts/connectivity,
+                        accounts/production,
+                    ]
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Terraform CLI
+              uses: hashicorp/setup-terraform@v2
+              with:
+                  terraform_version: "1.14.3"
+
+            - name: Configure AWS credentials - OIDC
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+                  aws-region: ${{ env.AWS_REGION }}
+
+            - name: Terraform init
+              working-directory: ${{ matrix.dir }}
+              run: terraform init -backend-config="bucket=${{ secrets.S3_STATE }}" -backend-config="key=${{ matrix.dir }}/terraform.tfstate" -backend-config="region=${{ env.AWS_REGION }}"
+
+            - name: Terraform Validate
+              working-directory: ${{ matrix.dir }}
+              run: terraform validate
+
+            - name: Terraform Plan
+              working-directory: ${{ matrix.dir }}
+              run: terraform plan -out=plan.tfplan -var="s3_state=${{ secrets.S3_STATE }}"
+
+            - name: Terraform Apply
+              if: github.ref == 'refs/heads/main'
+              working-directory: ${{ matrix.dir }}
+              run: terraform apply -auto-approve plan.tfplan
