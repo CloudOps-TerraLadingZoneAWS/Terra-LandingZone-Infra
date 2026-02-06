@@ -8,7 +8,6 @@ on:
                 required: true
                 type: choice
                 options:
-                    - tooling
                     - connectivity
                     - production
             terraform_action:
@@ -23,6 +22,10 @@ on:
 env:
     AWS_REGION: "us-east-1"
     WORK_DIR: "accounts/${{ github.event.inputs.target_account }}"
+
+    TF_VAR_aws_region: "us-east-1"
+    TF_VAR_project_name: "terra-lading-zone"
+    TF_VAR_s3_state: ${{ secrets.S3_STATE }}
 
 jobs:
     terraform:
@@ -62,7 +65,7 @@ jobs:
 
             - name: Terraform Plan
               working-directory: ${{ env.WORK_DIR }}
-              run: terraform plan -out=plan.tfplan -var="s3_state=${{ secrets.S3_STATE }}"
+              run: terraform plan -out=plan.tfplan
 
             - name: Terraform Apply
               if: ${{ inputs.terraform_action == 'apply' }}
